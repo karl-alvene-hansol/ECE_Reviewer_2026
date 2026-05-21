@@ -1,0 +1,456 @@
+/* ============================================================
+   QUIZ.CSS — Exam/Quiz Page Styles
+   ============================================================ */
+
+/* ── Exam Layout ─────────────────────────────────────────────── */
+#examPage {
+  max-width: 740px;
+}
+
+.exam-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.exam-progress-info {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text2);
+}
+
+.exam-progress-info strong {
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.exam-controls-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Question Card ───────────────────────────────────────────── */
+.question-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 26px;
+  margin-bottom: 16px;
+}
+
+.question-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.question-num {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text3);
+}
+
+.question-text {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--text);
+  font-weight: 400;
+}
+
+.question-text .formula {
+  font-family: var(--font-mono);
+  background: var(--surface2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* ── Choices ─────────────────────────────────────────────────── */
+.choices-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.choice-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 13px 16px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.93rem;
+  color: var(--text);
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  line-height: 1.5;
+}
+
+.choice-btn:hover:not(:disabled):not(.chosen-correct):not(.chosen-wrong):not(.reveal-correct) {
+  background: var(--surface3);
+  border-color: var(--border2);
+  transform: translateY(-1px);
+}
+
+.choice-btn:disabled {
+  cursor: default;
+}
+
+.choice-letter {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text2);
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+/* Choice states */
+.choice-btn.chosen-correct {
+  background: rgba(16,185,129,0.1);
+  border-color: var(--green);
+}
+.choice-btn.chosen-correct .choice-letter {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.choice-btn.chosen-wrong {
+  background: rgba(239,68,68,0.1);
+  border-color: var(--red);
+}
+.choice-btn.chosen-wrong .choice-letter {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
+.choice-btn.reveal-correct {
+  background: rgba(16,185,129,0.06);
+  border-color: rgba(16,185,129,0.4);
+}
+.choice-btn.reveal-correct .choice-letter {
+  background: rgba(16,185,129,0.2);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* ── Solution Box ────────────────────────────────────────────── */
+.solution-box {
+  margin-top: 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text2);
+  animation: fadeIn 0.25s ease;
+}
+
+/* Answer verdict strip */
+.answer-verdict {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-bottom: 1px solid var(--border);
+}
+.answer-verdict i { font-size: 1.2rem; flex-shrink: 0; }
+.answer-verdict.verdict-correct {
+  background: rgba(16,185,129,0.12);
+  color: var(--green);
+}
+.answer-verdict.verdict-wrong {
+  background: rgba(239,68,68,0.12);
+  color: var(--red);
+}
+.verdict-your {
+  margin-left: auto;
+  font-weight: 400;
+  font-size: 0.82rem;
+  color: var(--text2);
+}
+.verdict-your strong { color: var(--text); }
+
+/* Correct answer row */
+.solution-correct-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+  color: var(--text2);
+}
+
+/* Explanation content area */
+.solution-content {
+  padding: 16px;
+  border-left: 3px solid var(--accent);
+}
+
+.solution-label {
+  font-weight: 600;
+  color: var(--accent2);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.solution-body {
+  color: var(--text2);
+  font-size: 0.875rem;
+  line-height: 1.75;
+}
+
+.solution-body strong { color: var(--text); }
+.solution-body code {
+  font-family: var(--font-mono);
+  background: var(--surface3);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: var(--accent2);
+  border: 1px solid var(--border);
+}
+
+/* Loading spinner inside solution box */
+.solution-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text3);
+  font-size: 0.85rem;
+  padding: 4px 0;
+}
+.solution-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Next Question Button ────────────────────────────────────── */
+.next-q-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 14px 0 6px;
+}
+
+.btn-next-q {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 32px;
+  border-radius: var(--r);
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.97rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  box-shadow: 0 2px 12px rgba(99,102,241,0.25);
+  animation: fadeIn 0.2s ease;
+}
+.btn-next-q:hover {
+  background: var(--accent2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(99,102,241,0.35);
+}
+.btn-next-q:active { transform: translateY(0); }
+
+/* ── Exam Navigation ─────────────────────────────────────────── */
+.exam-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.exam-nav-center {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Question Map ────────────────────────────────────────────── */
+.qmap-modal .modal {
+  max-width: 500px;
+}
+
+.qmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+  gap: 6px;
+}
+
+.qmap-cell {
+  aspect-ratio: 1;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  cursor: pointer;
+  background: var(--surface2);
+  color: var(--text2);
+  transition: all 0.1s;
+}
+
+.qmap-cell:hover { border-color: var(--accent); color: var(--accent2); }
+.qmap-cell.current { border-color: var(--accent); background: var(--accent-glow); color: var(--accent2); font-weight: 600; }
+.qmap-cell.correct { background: rgba(16,185,129,0.12); border-color: var(--green); color: var(--green); }
+.qmap-cell.wrong   { background: rgba(239,68,68,0.12);  border-color: var(--red);   color: var(--red); }
+.qmap-cell.skipped { background: rgba(245,158,11,0.1);  border-color: var(--gold);  color: var(--gold); }
+
+.qmap-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  font-size: 0.78rem;
+  color: var(--text3);
+}
+.qmap-legend span { display: flex; align-items: center; gap: 5px; }
+.qmap-legend .dot {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+}
+
+/* ── Setup Panel ──────────────────────────────────────────────── */
+.setup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 480px) {
+  .setup-grid { grid-template-columns: 1fr; }
+}
+
+.count-chips,
+.timer-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.count-chip {
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text2);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.count-chip:hover { border-color: var(--accent); color: var(--accent2); }
+.count-chip.active { background: var(--accent-glow); border-color: var(--accent); color: var(--accent2); font-weight: 500; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Solution Box Enhancements (CSV + AI) ────────────────────── */
+
+/* Divider between CSV solution and AI explanation */
+.solution-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 16px;
+}
+
+/* AI explanation label styling */
+.solution-label-ai {
+  color: var(--accent2);
+}
+
+/* Review-mode solution box (results page) */
+.review-solution-box {
+  margin-top: 14px;
+  border-radius: var(--r);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  animation: fadeIn 0.2s ease;
+}
+
+.review-solution-box .solution-content {
+  border-left: 3px solid var(--accent);
+  padding: 14px 16px;
+  background: var(--surface2);
+}
+
+.review-solution-box .solution-content + .solution-content {
+  border-left-color: var(--accent2);
+}
+
+/* Make review choice text wrap properly */
+.review-choice-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── KaTeX overrides — match app theme ────────────────────────── */
+.katex {
+  font-size: 1em;
+  color: inherit;
+}
+
+.katex-display {
+  margin: 10px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 0;
+}
+
+/* Inline KaTeX in choice buttons should inherit size */
+.choice-btn .katex {
+  font-size: 0.93em;
+}
+
+/* KaTeX in solution body */
+.solution-body .katex-display {
+  background: var(--surface3);
+  border-radius: var(--r);
+  padding: 10px 14px;
+  margin: 8px 0;
+  border: 1px solid var(--border);
+}

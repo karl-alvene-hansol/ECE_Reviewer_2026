@@ -1,0 +1,90 @@
+{
+  "version": "1.0",
+  "subjects": [
+    {
+      "id": "Mathematics",
+      "displayName": "Mathematics",
+      "shortName": "Math",
+      "subClass": "math",
+      "color": "#3b82f6",
+      "icon": "ti-math",
+      "weight": "20%",
+      "dataFile": "data/questions/mathematics.json",
+      "topics": [
+        "Differential Calculus",
+        "Integral Calculus",
+        "Differential Equations",
+        "Advanced Engineering Mathematics",
+        "Engineering Data Analysis",
+        "Electromagnetics",
+        "Signals & Spectra",
+        "Feedback & Control Systems"
+      ]
+    },
+    {
+      "id": "GEAS",
+      "displayName": "GEAS",
+      "shortName": "GEAS",
+      "subClass": "geas",
+      "color": "#10b981",
+      "icon": "ti-flask",
+      "weight": "20%",
+      "dataFile": "data/questions/geas.json",
+      "topics": [
+        "Chemistry for Engineers",
+        "Physics for Engineers",
+        "Engineering Economics",
+        "Engineering Management",
+        "Technopreneurship 101",
+        "Physics 2",
+        "Materials Science",
+        "Computer Programming",
+        "Environmental Science",
+        "ECE Laws & Ethics",
+        "CAD"
+      ]
+    },
+    {
+      "id": "Electronics Eng.",
+      "displayName": "Electronics Engineering",
+      "shortName": "Elex",
+      "subClass": "elex",
+      "color": "#f59e0b",
+      "icon": "ti-circuit-diode",
+      "weight": "30%",
+      "dataFile": "data/questions/electronics.json",
+      "topics": [
+        "DC Electrical Circuits",
+        "AC Electrical Circuits",
+        "Electromagnetics",
+        "Electronic Devices & Circuits",
+        "Electronic Circuit Analysis & Design",
+        "Electronic Systems & Design",
+        "Logic Circuits & Switching Theory",
+        "Microprocessor & Microcontroller Systems",
+        "Feedback & Control Systems"
+      ]
+    },
+    {
+      "id": "EST",
+      "displayName": "Electronics Systems & Technologies",
+      "shortName": "EST",
+      "subClass": "est",
+      "color": "#8b5cf6",
+      "icon": "ti-antenna",
+      "weight": "30%",
+      "dataFile": "data/questions/est.json",
+      "topics": [
+        "Signals, Spectra & Signal Processing",
+        "Principles of Communications",
+        "Digital Communications",
+        "Transmission & Antenna Systems",
+        "Electronics Systems & Design",
+        "Data Communications"
+      ]
+    }
+  ],
+  "difficultyLevels": ["Easy", "Moderate", "Difficult"],
+  "questionTypes": ["conceptual", "problem-solving", "situational"],
+  "passingScore": 70
+}

@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "app": {
+    "name": "ECE Board Reviewer",
+    "version": "2.0.0",
+    "description": "PRC Electronics Engineering Licensure Exam Reviewer",
+    "passingScore": 70
+  },
+  "defaults": {
+    "theme": "dark",
+    "questionCount": 10,
+    "timerMinutes": 0,
+    "subject": "All",
+    "difficulty": "All",
+    "shuffleQuestions": true,
+    "shuffleChoices": true
+  },
+  "exam": {
+    "countOptions": [10, 20, 30],
+    "timerOptions": [0, 30, 60, 90, 120],
+    "warnTimerPercent": 25,
+    "dangerTimerPercent": 10,
+    "historyLimit": 50
+  },
+  "analytics": {
+    "weakTopicThreshold": 60
+  }
+}

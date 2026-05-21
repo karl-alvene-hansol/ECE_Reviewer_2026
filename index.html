@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ECE Board Reviewer · PH</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css" />
+
+  <!-- KaTeX — math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+
+  <!-- App Styles -->
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/quiz.css" />
+  <link rel="stylesheet" href="css/reviewer.css" />
+  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/checklist.css" />
+
+  <style>
+    /* ── App loader overlay ───────────────────────────────────── */
+    #appLoader {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px; z-index: 9999;
+    }
+    #appLoader .loader-spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    #appLoader p { color: var(--text2); font-size: 0.9rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Exam progress bar (top of exam page) ─────────────────── */
+    .exam-progress-bar {
+      height: 4px; background: var(--surface3);
+      border-radius: 999px; overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .exam-progress-bar-fill {
+      height: 100%; background: var(--accent);
+      border-radius: 999px; transition: width 0.3s ease;
+    }
+
+    /* ── Results page extras ──────────────────────────────────── */
+    .result-badge {
+      width: 72px; height: 72px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; margin: 0 auto 16px;
+    }
+    .result-badge.pass { background: rgba(16,185,129,0.15); color: var(--green); border: 2px solid var(--green); }
+    .result-badge.fail { background: rgba(239,68,68,0.12);  color: var(--red);   border: 2px solid var(--red); }
+    .results-headline  { font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; text-align: center; }
+    .results-subline   { color: var(--text2); text-align: center; margin-top: 4px; font-size: 0.9rem; }
+    .results-score     { font-family: var(--font-head); font-size: 2.8rem; font-weight: 800; color: var(--accent2); text-align: center; margin: 10px 0 4px; }
+    .results-pct       { font-size: 1.1rem; color: var(--text2); text-align: center; margin-bottom: 12px; }
+    .results-summary   { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+    .results-chip      { padding: 6px 14px; border-radius: 999px; background: var(--surface2); border: 1px solid var(--border); font-size: 0.82rem; color: var(--text2); }
+    .results-chip strong { color: var(--text); }
+
+    /* ── Review list ─────────────────────────────────────────── */
+    .review-item         { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r2); padding: 18px; margin-bottom: 12px; }
+    .review-item.correct { border-left: 3px solid var(--green); }
+    .review-item.wrong   { border-left: 3px solid var(--red); }
+    .review-item.skipped { border-left: 3px solid var(--gold); }
+    .review-item-header  { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .review-qnum         { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text3); display: flex; align-items: center; gap: 4px; }
+    .review-question     { font-size: 0.95rem; line-height: 1.6; margin-bottom: 12px; color: var(--text); }
+    .review-choices      { display: flex; flex-direction: column; gap: 6px; }
+    .review-choice       { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: var(--r); background: var(--surface2); font-size: 0.88rem; color: var(--text2); border: 1px solid var(--border); }
+    .review-choice.reveal-correct { background: rgba(16,185,129,0.08); border-color: var(--green); color: var(--text); }
+    .review-choice.chosen-wrong   { background: rgba(239,68,68,0.08);  border-color: var(--red);   color: var(--text); }
+
+    /* ── Board exam badge ────────────────────────────────────── */
+    .board-exam-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: var(--r);
+      border: 2px solid var(--gold); background: var(--gold-glow);
+      color: var(--gold); font-weight: 600; font-size: 0.9rem;
+      cursor: pointer; transition: all 0.15s; width: 100%;
+      font-family: var(--font-body); margin-top: 10px;
+    }
+    .board-exam-btn:hover, .board-exam-btn.active {
+      background: rgba(245,158,11,0.25); box-shadow: 0 0 12px var(--gold-glow);
+    }
+    .board-exam-btn .badge {
+      margin-left: auto; font-size: 0.72rem; background: var(--gold);
+      color: #000; padding: 2px 7px; border-radius: 999px; font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     APP LOADER
+═══════════════════════════════════════════════════════════ -->
+<div id="appLoader">
+  <div class="loader-spinner"></div>
+  <p>Loading question bank…</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     APP SHELL
+═══════════════════════════════════════════════════════════ -->
+<div class="app-shell">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <h1><i class="ti ti-circuit-board"></i> ECE Reviewer</h1>
+      <p>PH Board Exam Prep · 200 Items</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section-label">Main</span>
+      <button class="nav-btn active" data-page="homePage" onclick="showPage('homePage'); closeSidebar();">
+        <i class="ti ti-home"></i> Home
+      </button>
+      <button class="nav-btn" data-page="examSetupPage" onclick="showPage('examSetupPage'); closeSidebar();">
+        <i class="ti ti-clipboard-list"></i> Mock Board Exam
+      </button>
+      <button class="nav-btn" data-page="reviewerPage" onclick="showPage('reviewerPage'); closeSidebar();">
+        <i class="ti ti-book"></i> Study Reviewer
+      </button>
+
+      <span class="nav-section-label">Insights</span>
+      <button class="nav-btn" data-page="analyticsPage" onclick="showPage('analyticsPage'); renderAnalytics(); closeSidebar();">
+        <i class="ti ti-chart-bar"></i> Analytics
+      </button>
+      <button class="nav-btn" data-page="historyPage" onclick="showPage('historyPage'); renderHistory(); closeSidebar();">
+        <i class="ti ti-history"></i> History
+      </button>
+
+      <span class="nav-section-label">Study Tools</span>
+      <button class="nav-btn" data-page="checklistPage" onclick="showPage('checklistPage'); closeSidebar();">
+        <i class="ti ti-list-check"></i> TOS Checklist
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+        <i class="ti ti-sun"></i> Light
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="resetSession()" title="Reset progress">
+        <i class="ti ti-trash"></i>
+      </button>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- ── Main Content ──────────────────────────────────────────── -->
+  <main class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+          <i class="ti ti-menu-2"></i>
+        </button>
+        <span class="topbar-title">ECE Board Reviewer · PH</span>
+      </div>
+      <div class="topbar-right">
+        <div class="timer-badge" id="timerBadge" style="display:none">
+          <i class="ti ti-clock"></i>
+          <span id="timerText">00:00</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ══════════════════════════════════════════════════════════
+         HOME PAGE
+    ══════════════════════════════════════════════════════════ -->
+    <section class="page active" id="homePage">
+      <div class="page-header">
+        <h2 class="page-title">Dashboard</h2>
+        <p class="page-subtitle">Track your ECE board exam preparation. 200 questions loaded from CSV.</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="statTotalQ">—</div>
+          <div class="stat-label">Questions Loaded</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statAnswered">0</div>
+          <div class="stat-label">Answered</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statAccuracy">—</div>
+          <div class="stat-label">Accuracy</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statBestScore">—</div>
+          <div class="stat-label">Best Score</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Quick Start</div>
+        <p style="color:var(--text2);font-size:0.9rem;margin-bottom:16px">
+          Jump into a customized session or take the full 200-item PRC-aligned Mock Board Exam.
+        </p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-lg" onclick="showPage('examSetupPage')">
+            <i class="ti ti-player-play"></i> Start Mock Exam
+          </button>
+          <button class="btn btn-secondary" onclick="showPage('reviewerPage')">
+            <i class="ti ti-book"></i> Study Reviewer
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">ECE Board Exam Coverage</div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+          <div class="subject-bar-row">
+            <span class="subject-bar-label" style="width:140px">Mathematics</span>
+            <div class="subject-bar-track"><div class="subject-bar-fill" style="width:20%;background:#3b82f6"></div></div>
+            <span class="subject-bar-pct">50 items</span>
+          </div>
+          <div class="subject-bar-row">
+            <span class="subject-bar-label" style="width:140px">GEAS</span>
+            <div class="subject-bar-track"><div class="subject-bar-fill" style="width:20%;background:#10b981"></div></div>
+            <span class="subject-bar-pct">50 items</span>
+          </div>
+          <div class="subject-bar-row">
+            <span class="subject-bar-label" style="width:140px">Electronics Eng.</span>
+            <div class="subject-bar-track"><div class="subject-bar-fill" style="width:30%;background:#f59e0b"></div></div>
+            <span class="subject-bar-pct">50 items</span>
+          </div>
+          <div class="subject-bar-row">
+            <span class="subject-bar-label" style="width:140px">EST</span>
+            <div class="subject-bar-track"><div class="subject-bar-fill" style="width:30%;background:#8b5cf6"></div></div>
+            <span class="subject-bar-pct">50 items</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         EXAM SETUP PAGE
+    ══════════════════════════════════════════════════════════ -->
+    <section class="page" id="examSetupPage">
+      <div class="page-header">
+        <h2 class="page-title">Mock Board Exam</h2>
+        <p class="page-subtitle">Configure your exam session or launch the full 200-item board exam.</p>
+      </div>
+
+      <div class="card">
+        <!-- 200-item board exam CTA -->
+        <div style="background:var(--gold-glow);border:1px solid rgba(245,158,11,0.3);border-radius:var(--r2);padding:16px 18px;margin-bottom:20px">
+          <div style="font-family:var(--font-head);font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:4px">
+            <i class="ti ti-certificate"></i> Full 200-Item Mock Board Exam
+          </div>
+          <p style="font-size:0.85rem;color:var(--text2);margin-bottom:12px">
+            Simulates the PRC ECE Licensure Exam — 50 items per subject, 3-hour timer, randomized choices.
+          </p>
+          <button class="board-exam-btn" id="boardExamBtn" onclick="setBoardExam()">
+            <i class="ti ti-clipboard-check"></i> Select Full Board Exam (200 Items)
+            <span class="badge">RECOMMENDED</span>
+          </button>
+        </div>
+
+        <div class="divider" style="position:relative">
+          <span style="position:absolute;left:50%;transform:translateX(-50%) translateY(-50%);background:var(--surface);padding:0 10px;color:var(--text3);font-size:0.75rem">or customize</span>
+        </div>
+
+        <!-- Subject & Difficulty -->
+        <div class="setup-grid" style="margin-top:20px">
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <select class="form-select" id="setupSubject"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Difficulty</label>
+            <select class="form-select" id="setupDifficulty"></select>
+          </div>
+        </div>
+
+        <!-- Question Count -->
+        <div class="form-group" style="margin-bottom:16px">
+          <label class="form-label">Number of Questions</label>
+          <div class="count-chips" id="countChips"></div>
+        </div>
+
+        <!-- Timer -->
+        <div class="form-group" style="margin-bottom:24px">
+          <label class="form-label">Timer</label>
+          <div class="timer-chips" id="timerChips"></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+          <button class="btn btn-secondary" onclick="showPage('homePage')">Cancel</button>
+          <button class="btn btn-primary btn-lg" onclick="startExam()">
+            <i class="ti ti-player-play"></i> Start Exam
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         EXAM PAGE
+    ══════════════════════════════════════════════════════════ -->
+    <section class="page" id="examPage">
+
+      <!-- Progress bar -->
+      <div class="exam-progress-bar">
+        <div class="exam-progress-bar-fill" id="examProgressFill" style="width:0%"></div>
+      </div>
+
+      <!-- Exam header -->
+      <div class="exam-header">
+        <div>
+          <div id="examQNum" class="exam-progress-info">Question 1 of 10</div>
+          <div id="examProgress" style="font-size:0.78rem;color:var(--text3)">0 answered</div>
+        </div>
+        <div class="exam-controls-top">
+          <button class="btn btn-ghost btn-sm" onclick="openQMap()">
+            <i class="ti ti-grid-dots"></i> Map
+          </button>
+          <button class="btn btn-ghost btn-sm" onclick="if(confirm('End exam?')) Exam.submit()">
+            <i class="ti ti-x"></i> End
+          </button>
+        </div>
+      </div>
+
+      <!-- Question card -->
+      <div class="question-card">
+        <div class="question-meta" id="questionMeta"></div>
+        <div class="question-text" id="questionText"></div>
+        <div class="choices-grid" id="choicesGrid"></div>
+        <div class="solution-box" id="solutionBox" style="display:none"></div>
+      </div>
+
+      <!-- Next Question CTA (shown after answering, before last question) -->
+      <div class="next-q-wrap" id="nextQWrap">
+        <button class="btn btn-next-q" id="examNextQBtn" style="display:none" onclick="Exam.navigate(1)">
+          Next Question <i class="ti ti-arrow-right"></i>
+        </button>
+      </div>
+
+      <!-- Nav -->
+      <div class="exam-nav">
+        <button class="btn btn-secondary" id="examPrevBtn" onclick="Exam.navigate(-1)">
+          <i class="ti ti-chevron-left"></i> Prev
+        </button>
+        <div class="exam-nav-center">
+          <button class="btn btn-danger" id="examSubmitBtn" style="display:none" onclick="confirmSubmit()">
+            <i class="ti ti-send"></i> Submit
+          </button>
+        </div>
+        <button class="btn btn-secondary" id="examNextBtn" onclick="Exam.navigate(1)">
+          Next <i class="ti ti-chevron-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         RESULTS PAGE
+    ══════════════════════════════════════════════════════════ -->
+    <section class="page" id="resultsPage">
+      <div class="page-header">
+        <h2 class="page-title">Exam Results</h2>
+      </div>
+
+      <!-- Score card -->
+      <div class="card" style="text-align:center;margin-bottom:20px">
+        <div class="result-badge" id="resultsBadge"><i class="ti ti-trophy"></i></div>
+        <h2 class="results-headline" id="resultsHeadline">You Passed!</h2>
+        <p class="results-subline"  id="resultsSubline"></p>
+        <div class="results-score"  id="resultsScore">—</div>
+        <div class="results-pct"    id="resultsPct">—</div>
+        <div class="progress-bar"   style="max-width:200px;margin:0 auto 16px">
+          <div class="progress-fill" id="resultsPctBar" style="width:0"></div>
+        </div>
+
+        <div class="results-summary">
+          <div class="results-chip">Subject: <strong id="resultsSubject">—</strong></div>
+          <div class="results-chip">✅ Correct: <strong id="resultsCorrect">0</strong></div>
+          <div class="results-chip">❌ Wrong: <strong id="resultsWrong">0</strong></div>
+          <div class="results-chip">⏭ Skipped: <strong id="resultsSkipped">0</strong></div>
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="showPage('examSetupPage')">
+            <i class="ti ti-repeat"></i> Try Again
+          </button>
+          <button class="btn btn-secondary" onclick="showPage('homePage')">
+            <i class="ti ti-home"></i> Home
+          </button>
+        </div>
+      </div>
+
+      <!-- Subject breakdown (shown for mixed/board exams) -->
+      <div class="card" id="resultsBreakdown" style="display:none;margin-bottom:20px"></div>
+
+      <!-- Detailed review -->
+      <div class="card-title" style="margin-bottom:12px">Detailed Review</div>
+      <div id="reviewList"></div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         REVIEWER PAGE
+    ══════════════════════════════════════════════════════════ -->
+    <section class="page" id="reviewerPage">
+      <div class="page-header">
+        <h2 class="page-title">Study Reviewer</h2>
+        <p class="page-subtitle">Browse questions by subject without a timer.</p>
+      </div>
+
+      <div class="subject-grid" id="reviewerSubjectGrid"></div>
+
+      <div id="reviewerQSection" style="display:none">
+        <div class="reviewer-q-header">
+          <div>
+            <div class="reviewer-progress" id="reviewerProgress">1 / 0</div>
+            <div id="reviewerQMeta"></div>
+          </div>
+          <div class="reviewer-q-nav">
+            <button class="btn btn-ghost btn-sm" onclick="Reviewer.navigate(-1)"><i class="ti ti-chevron-left"></i></button>
+            <button class="btn btn-ghost btn-sm" onclick="Reviewer.reshuffle()"><i class="ti ti-arrows-shuffle"></i></button>
+            <button class="btn btn-ghost btn-sm" onclick="Reviewer.navigate(1)"><i class="ti ti-chevron-right"></i></button>
+          </div>
+        </div>
+
+        <div class="question-card">
+          <div class="question-text" id="reviewerQText"></div>
+          <div class="choices-grid" id="reviewerChoices" style="margin-top:16px"></div>
+          <div class="solution-box" id="reviewerSolution" style="display:none;margin-top:12px"></div>
+        </div>
+
+        <div style="display:flex;justify-content:center;margin-top:12px">
+          <button class="btn btn-secondary" id="reviewerRevealBtn" onclick="Reviewer.revealSolution()">
+            <i class="ti ti-eye"></i> Show Answer
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         ANALYTICS PAGE
+    ══════════════════════════════════════════════════════════ -->
+    <section class="page" id="analyticsPage">
+      <div class="page-header">
+        <h2 class="page-title">Analytics</h2>
+        <p class="page-subtitle">Your performance breakdown across subjects and topics.</p>
+      </div>
+
+      <div class="analytics-grid">
+        <div class="analytics-card">
+          <h3><i class="ti ti-chart-bar"></i> Score by Subject (avg)</h3>
+          <div id="subjectBars"></div>
+        </div>
+        <div class="analytics-card">
+          <h3><i class="ti ti-alert-triangle"></i> Weak Topics (&lt;60%)</h3>
+          <div id="weakTopics"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Overall Stats</div>
+        <div class="stats-grid" style="margin-top:12px;margin-bottom:0">
+          <div class="stat-card">
+            <div class="stat-value" id="statAnswered2">0</div>
+            <div class="stat-label">Total Answered</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statBestScore2">—</div>
+            <div class="stat-label">Best Score</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         HISTORY PAGE
+    ══════════════════════════════════════════════════════════ -->
+    <section class="page" id="historyPage">
+      <div class="page-header">
+        <h2 class="page-title">Exam History</h2>
+        <p class="page-subtitle">Your recent mock board exam results.</p>
+      </div>
+
+      <div class="card">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Date</th><th>Subject</th><th>Score</th><th>Percentage</th><th>Result</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">No history yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         TOS CHECKLIST PAGE
+    ══════════════════════════════════════════════════════════ -->
+    <section class="page" id="checklistPage">
+      <div class="page-header">
+        <h2 class="page-title">TOS Review Checklist</h2>
+        <p class="page-subtitle">Official PRC 2022 Table of Specifications — track your topic coverage.</p>
+      </div>
+
+      <div class="cl-overview-card">
+        <div class="cl-overview-top">
+          <div>
+            <div class="cl-overview-title">Overall Progress</div>
+            <div class="cl-pct-big" id="cl-pct">0%</div>
+          </div>
+          <div class="cl-stat-chips">
+            <div class="cl-chip done"><i class="ti ti-circle-check" style="color:var(--green)"></i> Done: <strong id="cl-done">0</strong></div>
+            <div class="cl-chip prog"><i class="ti ti-circle-half" style="color:var(--gold)"></i> In Progress: <strong id="cl-inprog">0</strong></div>
+            <div class="cl-chip rem"><i class="ti ti-circle" style="color:var(--text3)"></i> Remaining: <strong id="cl-remain">0</strong></div>
+            <div class="cl-chip">Total: <strong id="cl-total">0</strong></div>
+          </div>
+        </div>
+        <div class="cl-overall-bar-wrap">
+          <div class="cl-overall-bar">
+            <div class="cl-overall-bar-fill" id="cl-bar-fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="cl-subject-bars">
+          <div class="cl-subj-row"><span class="cl-subj-name">Math</span><div class="cl-subj-track"><div class="cl-subj-fill" id="cl-subj-bar-MATH" style="width:0%;background:#3b82f6"></div></div><span class="cl-subj-pct" id="cl-subj-pct-MATH">0%</span></div>
+          <div class="cl-subj-row"><span class="cl-subj-name">GEAS</span><div class="cl-subj-track"><div class="cl-subj-fill" id="cl-subj-bar-GEAS" style="width:0%;background:#10b981"></div></div><span class="cl-subj-pct" id="cl-subj-pct-GEAS">0%</span></div>
+          <div class="cl-subj-row"><span class="cl-subj-name">Elex</span><div class="cl-subj-track"><div class="cl-subj-fill" id="cl-subj-bar-ELEX" style="width:0%;background:#f59e0b"></div></div><span class="cl-subj-pct" id="cl-subj-pct-ELEX">0%</span></div>
+          <div class="cl-subj-row"><span class="cl-subj-name">EST</span><div class="cl-subj-track"><div class="cl-subj-fill" id="cl-subj-bar-EST" style="width:0%;background:#8b5cf6"></div></div><span class="cl-subj-pct" id="cl-subj-pct-EST">0%</span></div>
+        </div>
+      </div>
+
+      <div class="cl-toolbar">
+        <div class="cl-search-wrap">
+          <i class="ti ti-search"></i>
+          <input class="cl-search" type="text" id="clSearch" placeholder="Search topics…" oninput="Checklist.handleSearch(this.value)" />
+        </div>
+        <div class="cl-toolbar-btns">
+          <button class="btn btn-secondary btn-sm" onclick="Checklist.expandAll()"><i class="ti ti-layout-rows"></i> Expand</button>
+          <button class="btn btn-secondary btn-sm" onclick="Checklist.collapseAll()"><i class="ti ti-layout-sidebar-left-collapse"></i> Collapse</button>
+          <button class="btn btn-secondary btn-sm" onclick="confirmResetChecklist()"><i class="ti ti-trash"></i> Reset</button>
+        </div>
+      </div>
+
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:16px;font-size:0.8rem;color:var(--text3);display:flex;align-items:center;gap:8px">
+        <i class="ti ti-info-circle" style="color:var(--accent2);font-size:15px;flex-shrink:0"></i>
+        <span>Click the <strong style="color:var(--text2)">circle icon</strong> on any topic to cycle: <span style="color:var(--text3)">Not Started</span> → <span style="color:var(--gold)">In Progress</span> → <span style="color:var(--green)">Done</span>. Progress is saved automatically.</span>
+      </div>
+
+      <div id="tosChecklistBody">
+        <div style="text-align:center;padding:40px;color:var(--text3)">
+          <i class="ti ti-loader" style="font-size:28px;display:block;margin-bottom:8px"></i>
+          Loading TOS checklist…
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div><!-- /app-shell -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════════════════════ -->
+<div class="modal-backdrop qmap-modal" id="qmapModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title"><i class="ti ti-grid-dots"></i> Question Map</span>
+      <button class="modal-close" onclick="closeModal('qmapModal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="qmap-grid" id="qmapGrid"></div>
+      <div class="qmap-legend">
+        <span><span class="dot" style="background:var(--green)"></span> Correct</span>
+        <span><span class="dot" style="background:var(--red)"></span> Wrong</span>
+        <span><span class="dot" style="background:var(--gold)"></span> Unanswered</span>
+        <span><span class="dot" style="background:var(--accent)"></span> Current</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SCRIPTS — load order matters
+═══════════════════════════════════════════════════════════ -->
+<!-- PapaParse CDN (CSV parser) -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+<!-- KaTeX CDN (math rendering) -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+<!-- Utilities (no dependencies) -->
+<script src="js/utils/shuffle.js"></script>
+<script src="js/utils/dom.js"></script>
+<script src="js/utils/filters.js"></script>
+<script src="js/utils/latex.js"></script>
+
+<!-- Core -->
+<script src="js/core/state.js"></script>
+<script src="js/core/storage.js"></script>
+<script src="js/core/csv-loader.js"></script>
+
+<!-- Static data -->
+<script src="js/data/tos_data.js"></script>
+
+<!-- Modules -->
+<script src="js/modules/timer.js"></script>
+<script src="js/modules/reviewer.js"></script>
+<script src="js/modules/exam.js"></script>
+<script src="js/modules/results.js"></script>
+<script src="js/modules/analytics.js"></script>
+<script src="js/modules/checklist.js"></script>
+
+<!-- App bootstrap (last) -->
+<script src="js/core/app.js"></script>
+
+</body>
+</html>

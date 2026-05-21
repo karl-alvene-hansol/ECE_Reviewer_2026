@@ -1,0 +1,70 @@
+/* ============================================================
+   THEME.CSS — Theme Transitions & Overrides
+   ============================================================ */
+
+/* Smooth theme switching */
+body,
+.sidebar,
+.topbar,
+.card,
+.modal,
+.nav-btn,
+.choice-btn,
+.btn,
+.form-select,
+.form-input {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* Light theme text adjustments */
+[data-theme="light"] .sidebar-brand h1 {
+  color: var(--accent);
+}
+
+[data-theme="light"] .question-card,
+[data-theme="light"] .analytics-card,
+[data-theme="light"] .subject-card {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+[data-theme="light"] .choice-btn {
+  background: #f8fafc;
+}
+
+[data-theme="light"] .choice-btn:hover:not(:disabled):not(.chosen-correct):not(.chosen-wrong):not(.reveal-correct) {
+  background: #f1f5f9;
+}
+
+[data-theme="light"] .solution-box {
+  background: #f8fafc;
+}
+
+[data-theme="light"] .topbar {
+  background: rgba(248,250,252,0.95);
+  backdrop-filter: blur(8px);
+}
+
+/* Dark-only glow effects */
+[data-theme="dark"] .btn-primary:hover {
+  box-shadow: 0 0 20px var(--accent-glow);
+}
+
+[data-theme="dark"] .stat-card:hover {
+  box-shadow: 0 4px 20px rgba(59,130,246,0.08);
+}
+
+/* Scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+[data-theme="dark"] ::-webkit-scrollbar-track  { background: var(--bg); }
+[data-theme="dark"] ::-webkit-scrollbar-thumb  { background: var(--surface3); border-radius: 3px; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+[data-theme="light"] ::-webkit-scrollbar { width: 6px; }
+[data-theme="light"] ::-webkit-scrollbar-track  { background: #f1f5f9; }
+[data-theme="light"] ::-webkit-scrollbar-thumb  { background: #cbd5e1; border-radius: 3px; }
